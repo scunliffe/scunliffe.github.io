@@ -1,0 +1,163 @@
+<html>
+<head>
+<!--
+To anyone reading this, this was developed back in the days of Netscape 4.x.
+Yes it is ugly and not anything to be proud of but it works! Generating a yearly
+calendar for any year you specify in the URL.
+-->
+<style type="text/css">
+	.dayCol{
+		color:#000066;
+	}
+	.weekdaySq{
+		background-color:#fff;
+		font-family:Tahoma, Verdana, Arial, sans-serif;
+		font-weight:bold;
+	}
+	.weekendSq{
+		background-color:#fff;
+		font-family:Tahoma, Verdana, Arial, sans-serif;
+		font-weight:bold;
+	}
+	/*
+	.weekendSq{
+		background-color:#ddd;
+		color:#222;
+		font-family:Tahoma, Verdana, Arial, sans-serif;
+	}
+	*/
+</style>
+<script>
+	var locationSearch = document.location.search;
+	if(locationSearch.length == 0){
+		var currentYear = new Date().getFullYear();
+		document.location.href = document.location + '?year=' + currentYear;
+	} else {
+		//get the year...
+		var yearIndex = locationSearch.indexOf('year=');
+		var reqYear = locationSearch.substr((yearIndex + 5), 4);
+		var doYear = reqYear;
+	}
+	var doMonths = new Array(1,2,3,4,5,6,7,8,9,10,11,12);
+
+	// constructor
+	function Calendar(month, year){
+		// array of day names
+		this.days = new Array("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday");
+		// array of month names
+		this.months = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+		// array of total days in each month
+		this.totalDays = new Array(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+		// object properties - month and year
+		// correction for zero-based array index
+		this.month = month-1;
+		this.year = year;
+		// leap year correction
+		if(this.year % 4 == 0){
+			this.totalDays[1] = 29;
+		}
+		// temporary variable - used later
+		this.rowCount = 0;
+		// object method
+		this.display = display;
+		// automatically run method display() once object is initialized
+		this.display();
+	}
+	// function to display calendar
+	function display(){
+		today = new Date();
+		// create a Date object
+		// required to obtain basic date information
+		// get the first and last day of the month - boundary values for calendar
+		obj = new Date(this.year, this.month, 1);
+		this.firstDayOfMonth = obj.getDay();
+		obj.setDate(31);
+		this.lastDayOfMonth = obj.getDay();
+		// start table
+		document.write('<table bgcolor="#333333" border="0" cellpadding="2" cellspacing="1">');
+		// month display
+		document.write('<tr height=30><td colspan=7 align=center bgcolor=#9acdf7><font face=Tahoma, Verdana,Arial color=#000000 size=+1><b>' + this.months[this.month] + ' ' + this.year + '</b></font></td></tr>');
+		// day names
+		document.write("<tr height=30>");
+		for (x=0;x<7;x++){
+			document.write("<th bgcolor=#ffffff width=30 class=dayCol><font face=Tahoma, Verdana,Arial size=-1>" + this.days[x].substring(0,3) + "</font></th>");
+		}
+		document.write("</tr>");
+		// start displaying dates
+		// display blank spaces until the first day of the month
+		if(this.firstDayOfMonth != 0){
+			document.write("<tr height=30>");
+		}
+		for (x=1;x<=this.firstDayOfMonth;x++){
+			// this comes in handy to find the end of each 7-day block
+			this.rowCount++;
+			document.write("<td bgcolor=#ffffff width=30><font face=Tahoma, Verdana,Arial size=3>&nbsp;</font></td>");
+		}
+
+		// counter to track the current date
+		this.dayCount=1;
+		var cellClass;
+		while (this.dayCount <= this.totalDays[this.month]){
+			// use this to find out when the 7-day block is complete and display a new row
+			if (this.rowCount % 7 == 0){
+				document.write("</tr>\n<tr height=30>");
+			}
+			// print date
+			cellClass = 'weekdaySq';
+			if(this.rowCount % 7 == 0 || this.rowCount % 7 == 6){
+				cellClass = 'weekendSq';
+			}
+			document.write("<td align=center bgcolor=#ffffff class=" + cellClass + " width=30><font face=Tahoma, Verdana,Arial size=3>" + this.dayCount + "</font></td>");
+			this.dayCount++;
+			this.rowCount++;
+		}
+		var blanks = 42 - (this.totalDays[this.month] + (this.firstDayOfMonth));
+		//alert(blanks);
+		for(var i=0;i<blanks;i++){
+			if( (blanks == 7 || blanks == 14 ) && i == 0 ){
+				document.write("</tr>\n<tr height=30>");
+			}
+			document.write("<td bgcolor=#ffffff width=30><font face=Tahoma, Verdana,Arial size=3>&nbsp;</font></td>");
+			if(blanks > 7){
+				if( (blanks - 8) == i ){
+					document.write("</tr>\n<tr height=30>");
+				}
+			}
+		}
+		// end table
+		document.write("</tr></table>");
+	}
+</script>
+</head>
+<body bgcolor="white">
+	<table cellpadding="0" cellspacing="0" border="0" align="center">
+		<tr>
+			<th><font size="8"><script>document.write(doYear);</script></font></th>
+		</tr>
+		<tr>
+			<td>
+				<table cellpadding="12" cellspacing="0" border="0">
+					<tr>
+						<td valign="top" width="25%" nowrap><script> obj1 = new Calendar(doMonths[0], doYear); </script></td>
+						<td valign="top" width="25%" nowrap><script> obj2 = new Calendar(doMonths[1], doYear); </script></td>
+						<td valign="top" width="25%" nowrap><script> obj3 = new Calendar(doMonths[2], doYear); </script></td>
+						<td valign="top" width="25%" nowrap><script> obj4 = new Calendar(doMonths[3], doYear); </script></td>
+					</tr>
+					<tr>
+						<td valign="top"><script> obj5 = new Calendar(doMonths[4], doYear); </script></td>
+						<td valign="top"><script> obj6 = new Calendar(doMonths[5], doYear); </script></td>
+						<td valign="top"><script> obj7 = new Calendar(doMonths[6], doYear); </script></td>
+						<td valign="top"><script> obj8 = new Calendar(doMonths[7], doYear); </script></td>
+					</tr>
+					<tr>
+						<td valign="top"><script> obj9 = new Calendar(doMonths[8], doYear); </script></td>
+						<td valign="top"><script> obj10 = new Calendar(doMonths[9], doYear); </script></td>
+						<td valign="top"><script> obj11 = new Calendar(doMonths[10], doYear); </script></td>
+						<td valign="top"><script> obj12 = new Calendar(doMonths[11], doYear); </script></td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+</body>
+</html>
