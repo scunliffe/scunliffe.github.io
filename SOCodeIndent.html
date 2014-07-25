@@ -1,0 +1,8 @@
+<h1>StackOverfow Code Indent Bookmarklet</h1>
+<blockquote>
+Drag the link below to your bookmarks toolbar.  Then whenever you need to indent your code on StackOverflow (or any site using Markdown) just highlight
+your code and click the bookmarklet!
+</blockquote>
+
+<hr/>
+<a href="javascript:(function(){var indent = '  ';var codePrefix = '    ';var activeElem = document.activeElement;if(activeElem && activeElem.nodeName.toLowerCase() == 'textarea'){var selStart = activeElem.selectionStart;var selEnd = activeElem.selectionEnd;var sel = activeElem.value.substring(selStart, selEnd);var selLen = sel.length;var taVal = activeElem.value;var taPrefixSuffixes = taVal.split(sel);var selArr = sel.split('\n');var count = 0;var line;var newSelArr = [];for(var i=0;i<selArr.length;i++){line = selArr[i];count = 0;while(line.indexOf('\t') == 0){count++;line = line.substr(1);}for(var j=0;j<count;j++){line = indent + line;}line = codePrefix + line;newSelArr.push(line);}var newSel = newSelArr.join('\n');activeElem.value = taPrefixSuffixes[0] + newSel + taPrefixSuffixes[1];} else {alert('Highlight your code in the textarea first!');}})();">SO Code Indent</a>
