@@ -1,0 +1,91 @@
+<script>
+//config
+var INPUT_DELIMITER = "\t";
+var OUTPUT_DELIMITER = "\t";
+
+
+function doIt(){
+	updateProgress('parsing...');
+	var totalRecordsProcessed = 0;
+	var origDataArray = document.getElementById('orig').value.split('\n');
+	totalRecordsProcessed = origDataArray.length;
+	updateProgress('loaded ' + totalRecordsProcessed + ' issues...');
+	var processedRecords = {};//keyed by userID
+
+
+	for(var i=0;i<totalRecordsProcessed;i++){
+		updateProgress('processing row: ' + (i+1));
+		//currently the row contains: [name||id|qualification||subject]
+		rowData = origDataArray[i].split(INPUT_DELIMITER);
+		rosterName = rowData[0];
+		rosterID = ''+rowData[1];//force a string
+		rosterQualification = rowData[2];
+		rosterSubject = rowData[3];
+
+		//ok do we have this person yet?
+		if(typeof(processedRecords[rosterID]) == 'undefined'){
+			processedRecords[rosterID] = {};
+			//one-time set user name and ID
+			processedRecords[rosterID]['name'] = rosterName;
+			processedRecords[rosterID]['id'] = rosterID;
+			processedRecords[rosterID]['qualifications'] = [];
+
+		}
+		//set the qualification / subject
+		processedRecords[rosterID]['qualifications'].push([rosterQualification, rosterSubject]);
+	}
+
+	//we need to know how many headers to generate
+	var employeeRecord;
+	var maxQualificationCount = 0;
+	for(var x in processedRecords){
+		employeeRecord = processedRecords[x];
+		if(maxQualificationCount < employeeRecord['qualifications'].length){
+			maxQualificationCount = employeeRecord['qualifications'].length;
+		}
+	}
+
+
+
+
+	//ok, now spit em back out
+	var actualRosterCount = 0;
+	var output = '';
+	//add headers
+	output += 'Name' + OUTPUT_DELIMITER + 'ID';
+	for(var i=0;i<maxQualificationCount;i++){
+		output += OUTPUT_DELIMITER + 'Qualification ' + (i+1);
+		output += OUTPUT_DELIMITER + 'Subject ' + (i+1);
+	}
+	output += '\n';
+
+	for(var x in processedRecords){
+		actualRosterCount++;
+		updateProgress('exporting employee: ' + actualRosterCount);
+		employeeRecord = processedRecords[x];
+		output += employeeRecord['name'] + OUTPUT_DELIMITER + employeeRecord['id'];
+		for(var i=0;i<employeeRecord['qualifications'].length;i++){
+			output += OUTPUT_DELIMITER + employeeRecord['qualifications'][i][0];//qualification
+			output += OUTPUT_DELIMITER + employeeRecord['qualifications'][i][1];//subject
+		}
+		output += '\n';
+	}
+	document.getElementById('after').value = output;
+	var prettyDelim = OUTPUT_DELIMITER;
+	if(OUTPUT_DELIMITER == "\t"){
+		prettyDelim = 'Tab';
+	}
+	updateProgress('done! '+totalRecordsProcessed+' records processed for ' + actualRosterCount + ' employees!\n\nSave as a CSV ("' + prettyDelim + '" delimited)');
+}
+function updateProgress(msg){
+	document.getElementById('log').innerHTML = msg;
+}
+</script>
+
+<center>
+Paste your roster in here...<br/>
+<textarea id="orig" style="width:95%;height:300px;"></textarea><br/>
+<input type="button" value="Go" onclick="doIt();"/><br/>
+<div id="log" style="border:1px solid #ccc;background-color:#fffedf;color:#333;padding:3px;min-height:50px;width:100%;margin:3px;"></div>
+<textarea id="after" style="width:95%;height:300px;"></textarea>
+</center>
